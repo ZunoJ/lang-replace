@@ -6,7 +6,7 @@ const path = require("path");
 const ExcelJS = require("exceljs");
 
 const projectPath = path.join(__dirname, "../../../"); // 前端项目目录
-const excelFilePath = `./${process.argv[2] || "doc"}.xlsx`; // Excel文件的路径，根据你的实际路径进行修改
+const excelFilePath = `./${process.env.NAME || "doc"}.xlsx`; // Excel文件的路径，根据你的实际路径进行修改
 let keyIndex;
 let newKeyIndex;
 // 读取 Excel 文件
