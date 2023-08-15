@@ -2,10 +2,11 @@
 
 const fs = require("fs");
 const glob = require("glob");
+const path = require("path");
 const ExcelJS = require("exceljs");
 
-const projectPath = __dirname; // 当前脚本所在的目录，即你的前端项目目录
-const excelFilePath = "./doc.xlsx"; // Excel文件的路径，根据你的实际路径进行修改
+const projectPath = path.join(__dirname, "../../../"); // 前端项目目录
+const excelFilePath = `./${process.argv[2] || "doc"}.xlsx`; // Excel文件的路径，根据你的实际路径进行修改
 let keyIndex;
 let newKeyIndex;
 // 读取 Excel 文件
@@ -29,13 +30,12 @@ async function readExcel(filePath) {
   return keyMapping;
 }
 // 定义匹配$T方法调用的正则表达式
-const regex = /\$T\(['"]([^'"]+)['"]\)/g;
+const regex = /(\$[Tt])\(['"]([^'"]+)['"]\)/g;
 // 使用glob模块找到所有Vue和JS文件
 const files = glob.sync("**/*.+(vue|js)", {
   cwd: projectPath,
   ignore: "**/node_modules/**", // 忽略node_modules文件夹
 });
-
 // 获取 key 映射
 readExcel(excelFilePath).then((res) => {
   // 遍历所有文件
@@ -43,11 +43,14 @@ readExcel(excelFilePath).then((res) => {
     const content = fs.readFileSync(file, "utf-8");
 
     // 使用正则表达式匹配$T方法调用并进行替换
-    const modifiedContent = content.replace(regex, ($0, oldParam) => {
+    const modifiedContent = content.replace(regex, (...args) => {
+      const $0 = args[0];
+      const funcName = args[1];
+      const oldParam = args[2];
       // 如果有对应的 newKey，则替换
       if (res.hasOwnProperty(oldParam)) {
         const newKey = res[oldParam];
-        return `$T('${newKey}')`;
+        return `${funcName}('${newKey}')`;
       }
       return $0; // 没有对应的 newKey，保持原样
     });
