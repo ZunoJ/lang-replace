@@ -2,7 +2,7 @@
   "name": "lang-replace",
   "version": "1.0.3",
   "description": "",
-  "main": "autoReplace.js",
+  "main": "./bin/www.js",
   "bin": "./bin/www.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
