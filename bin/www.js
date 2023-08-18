@@ -101,26 +101,29 @@ function generatorI18nDoc(area, oldValue, newValue) {
       delete mergedKeyMapping[key];
     }
   }
-  const duplicatedValuePairs = {};
 
-  // 遍历 mergedKeyMapping，查找值相同但 key 不同的情况
+  // 以新的为准，合并新旧两份文件的key-value对
+  const valueToKeysMap = {};
+
+  // 遍历 mergedKeyMapping，将值相同的 key 放入同一个数组中
   for (const key in mergedKeyMapping) {
     const value = mergedKeyMapping[key];
-    const foundKey = Object.keys(mergedKeyMapping).find(
-      (otherKey) => otherKey !== key && mergedKeyMapping[otherKey] === value
-    );
-    if (foundKey && key !== foundKey) {
-      const sortedKeys = [key, foundKey].sort().join(",");
-      duplicatedValuePairs[sortedKeys] = value;
+    if (!valueToKeysMap[value]) {
+      valueToKeysMap[value] = [];
     }
+    valueToKeysMap[value].push(key);
   }
 
   // 打印提醒信息
-  Object.entries(duplicatedValuePairs).forEach(([keys, value]) => {
-    const [key1, key2] = keys.split(",");
-    console.log(
-      `警告：值 "${value}" 在合并后的键映射中有多个键："${key1}" 和 "${key2}"。`
-    );
+  Object.values(valueToKeysMap).forEach((keysList) => {
+    if (keysList.length > 1) {
+      const keysString = keysList.join('", "');
+      console.log(
+        `警告：值 "${
+          mergedKeyMapping[keysList[0]]
+        }" 在合并后的键映射中有多个键："${keysString}"。`
+      );
+    }
   });
   // 将合并后的key-value对象转换成YAML格式字符串
   const yamlContent = Object.keys(mergedKeyMapping)
