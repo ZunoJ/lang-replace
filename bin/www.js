@@ -37,10 +37,9 @@ async function readExcel(filePath, oldFilePath) {
   await workbook.xlsx.readFile(filePath);
   await oldWorkbook.xlsx.readFile(oldFilePath);
 
-  const sheet = workbook.getWorksheet(1);
-  const oldSheet = oldWorkbook.getWorksheet(1);
+  const sheet = workbook.getWorksheet(process.env.XLSXNAME || 1);
+  const oldSheet = oldWorkbook.getWorksheet(process.env.XLSXNAME || 1);
   const keyMapping = {};
-
   sheet.eachRow((row, rowNumber) => {
     if (rowNumber !== 1) {
       const key = row.getCell(sheetKeyIndex).value;
@@ -63,7 +62,7 @@ async function readExcel(filePath, oldFilePath) {
           oldKeyValueMapping["zh-CN"][oldKey] = oldzhCNText;
           oldKeyValueMapping["zh-HK"][oldKey] = oldzhHKText;
           oldKeyValueMapping["ms-MY"][oldKey] = oldmsMYText;
-          if (enUSText === oldenUSText) {
+          if (enUSText === oldenUSText && oldKey && key) {
             keyMapping[oldKey] = key;
           }
         } else {
